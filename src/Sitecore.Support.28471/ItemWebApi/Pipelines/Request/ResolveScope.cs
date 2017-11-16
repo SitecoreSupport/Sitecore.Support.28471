@@ -1,5 +1,7 @@
 ﻿namespace Sitecore.Support.ItemWebApi.Pipelines.Request
 {
+  using Sitecore.Configuration;
+  using Sitecore.Data;
   using Sitecore.Data.Items;
   using Sitecore.Diagnostics;
   using Sitecore.ItemWebApi;
@@ -12,6 +14,9 @@
 
   public class ResolveScope : RequestProcessor
   {
+    private static ID PublishingTargetTemplateID = 
+      new ID(
+        string.IsNullOrEmpty(Settings.GetSetting("Sitecore.Support.PublishingTargetTemplateID")) ? "E130C748-C13B-40D5-B6C6-4B150DC3FAB3" : Settings.GetSetting("Sitecore.Support.PublishingTargetTemplateID"));
     public override void Process(RequestArgs arguments)
     {
       Assert.ArgumentNotNull(arguments, "arguments");
@@ -20,7 +25,7 @@
 
     private static bool CanReadItem(Item item)
     {
-      return item.Access.CanRead() && (Sitecore.Context.Site.Name != "shell" || item.Access.CanReadLanguage());
+      return item.Access.CanRead() && (Sitecore.Context.Site.Name != "shell" || item.Access.CanReadLanguage() || item.TemplateID == PublishingTargetTemplateID);
     }
 
     private static string[] GetAxes()
